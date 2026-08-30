@@ -1,6 +1,7 @@
 # app/models/user.py
 from sqlalchemy import Column, Integer, String, Boolean
 from app.core.database import Base
+from sqlalchemy.orm import relationship
 
 # This is like Django's models.py
 class User(Base):
@@ -12,3 +13,4 @@ class User(Base):
     age = Column(Integer, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_admin = Column(Boolean, default=False, nullable=False)
+    properties = relationship("Property", back_populates="agent")
