@@ -23,9 +23,11 @@ import sys
 import os
 sys.path.append(os.getcwd())
 
+from app.core.config import settings
 from app.core.database import Base
-from app.models import user
+from app.models import user, Property
 
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 target_metadata = Base.metadata
 
 

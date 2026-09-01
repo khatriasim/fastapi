@@ -6,6 +6,9 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import socket
 from contextlib import asynccontextmanager
 import redis.asyncio as aioredis
+from app.graphql.schema import schema
+from strawberry.fastapi import GraphQLRouter
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,6 +31,8 @@ app.add_middleware(
 
 app.include_router(api_router)
 
+graphql_app = GraphQLRouter(schema)
+app.include_router(graphql_app, prefix="/graphql")
 @app.get("/")
 async def root():
     return {

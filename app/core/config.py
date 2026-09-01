@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -11,6 +12,12 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MONTHS: int 
     redis_url: str
 
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def parse_debug(cls, value):
+        if isinstance(value, str) and value.lower() in {"release", "prod", "production"}:
+            return False
+        return value
 
     class Config:
         env_file = ".env"
