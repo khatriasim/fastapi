@@ -50,3 +50,19 @@ jobs:
           ACCESS_TOKEN_EXPIRE_DAYS: 120
           REFRESH_TOKEN_EXPIRE_MONTHS: 2
 
+  # deploy:
+  #   needs: test                          # only runs if test job passes
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'  # only deploys from main branch
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Install Railway CLI
+  #       run: npm install -g @railway/cli
+
+  #     - name: Deploy to Railway
+  #       run: railway up --service fastapi
+  #       env:
+  #         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
