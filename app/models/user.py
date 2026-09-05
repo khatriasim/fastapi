@@ -14,3 +14,4 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     is_admin = Column(Boolean, default=False, nullable=False)
     properties = relationship("Property", back_populates="agent")
+    bookings = relationship("Booking", back_populates="buyer")

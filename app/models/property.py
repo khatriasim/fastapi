@@ -18,3 +18,4 @@ class Property(Base):
     status = Column(String, nullable=False, default="available")
     agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     agent = relationship("User", back_populates="properties")
+    bookings = relationship("Booking", back_populates="property")

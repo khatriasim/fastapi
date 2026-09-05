@@ -6,16 +6,21 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import socket
 from contextlib import asynccontextmanager
 import redis.asyncio as aioredis
-from app.graphql.schema import schema
+from app.graphql.schema import schema, graphql_router
 from strawberry.fastapi import GraphQLRouter
+
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    client = aioredis.Redis.from_url(settings.redis_url, decode_responses = True)
-    await client.ping()
-    print ("redis connected success")
-    await client.close()
+    Base.metadata.create_all(bind=engine) 
+    try:
+        client = aioredis.Redis.from_url(settings.redis_url,    decode_responses = True)
+        await client.ping()
+        print ("redis connected success")
+        await client.close()
+    except Exception:
+        print("redis not available - skipping") 
     yield
 
 app = FastAPI(
@@ -26,13 +31,13 @@ app = FastAPI(
 )
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1"]
+    allowed_hosts=["localhost", "127.0.0.1", "testserver"]
 )
 
 app.include_router(api_router)
 
 graphql_app = GraphQLRouter(schema)
-app.include_router(graphql_app, prefix="/graphql")
+app.include_router(graphql_router, prefix="/graphql")
 @app.get("/")
 async def root():
     return {

@@ -3,12 +3,16 @@ from app.graphql.types.property import PropertyType, CreatePropertyInput, Update
 from app.core.database import  SessionLocal
 from app.models.property import Property
 from typing import Optional
+from strawberry.types import Info
 
 @strawberry.type
 class PropertyMutation:
 
     @strawberry.mutation
-    def create_property(self, input: CreatePropertyInput, agent_id: int) -> PropertyType:
+    def create_property(self, info : Info, input: CreatePropertyInput) -> PropertyType:
+        user = info.context["user"]
+        if not user:
+            raise Exception("Not availabel")
         db = SessionLocal()
         try:
             new_property = Property(
@@ -21,7 +25,7 @@ class PropertyMutation:
                 bathrooms=input.bathrooms,
                 area=input.area,
                 address=input.address,
-                agent_id=agent_id,
+                agent_id=user.id,
                 status="available",
             )
 
@@ -46,12 +50,18 @@ class PropertyMutation:
             db.close()
 
     @strawberry.mutation
-    def update_property(self, id: int, input: UpdatePropertyInput) -> Optional[PropertyType]:
+    def update_property(self, info : Info, id: int,  input: UpdatePropertyInput) -> Optional[PropertyType]:
+        user = info.context["user"]
+        if not user:
+                    raise Exception("Not availabel")
         db = SessionLocal()
         try:  
             prop = db.query(Property).filter(Property.id == id).first()
             if not prop:
                 return None
+
+            if prop.agent_id != user.id:
+                 raise Exception("not  your property")
 
             if input.title is not None: prop.title = input.title
             if input.price is not None: prop.price = input.price
@@ -79,23 +89,30 @@ class PropertyMutation:
                 bathrooms=prop.bathrooms,
                 area=prop.area,
                 address=prop.address,
+                agent_name=prop.agent,
         )
         finally:
             db.close()
 
     @strawberry.mutation
-    def delete_property(self, id: int) -> bool:
-        db = SessionLocal()
+    def delete_property(self, info : Info, id: int, ) -> bool:
+        user = info.context["user"]
+        if not user:
+             raise Exception("NOT authorized ")
+        db = info.context["db"]
         try:
             prop = db.query(Property).filter(Property.id == id).first()
             if not prop:
                 return False
+
+            if prop.agent_id != user.id:
+                 raise Exception("Not your properyt")
             db.delete(prop)
             db.commit()
             return True
         finally:
             db.close()
-        
+
 
 
     

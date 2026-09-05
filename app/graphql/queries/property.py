@@ -36,7 +36,7 @@ class PropertyQuery:
                 User.name.ilike(f"%{agent_name}%")             
             )                          
 
-            props = db.query.all()
+            props = query.all()
             return [
                 PropertyType(
                     id=p.id,
@@ -46,6 +46,31 @@ class PropertyQuery:
                     status=p.status,
                     agent_id=p.agent_id,
                     agent_name = p.agent.name if p.agent else None,
+                    description=p.description,
+                    bedrooms=p.bedrooms,
+                    bathrooms=p.bathrooms,
+                    area=p.area,
+                    address=p.address,
+                )
+                for p in props
+            ]
+        finally:
+            db.close()
+
+    @strawberry.field
+    def my_properties(self, agent_id: int)-> List[PropertyType]:
+        db= SessionLocal()
+        try:
+            props = db.query(Property).filter(Property.agent_id == agent_id).all()
+            return[
+                PropertyType(
+                    id=p.id,
+                    title=p.title,
+                    price=p.price,
+                    city=p.city,
+                    status=p.status,
+                    agent_id=p.agent_id,
+                    agent_name=p.agent.name if p.agent else None,
                     description=p.description,
                     bedrooms=p.bedrooms,
                     bathrooms=p.bathrooms,
