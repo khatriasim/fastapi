@@ -15,7 +15,7 @@ from strawberry.fastapi import GraphQLRouter
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine) 
     try:
-        client = aioredis.Redis.from_url(settings.redis_url,    decode_responses = True)
+        client = aioredis.Redis.from_url(settings.redis_url,    decode_responses = True)    
         await client.ping()
         print ("redis connected success")
         await client.close()
